@@ -14,6 +14,8 @@ import TeacherService from "../services/TeacherService";
 import LoginView from "@/views/login/LoginView.vue";
 import RegisterView from "@/views/login/RegisterView.vue";
 import StudentFormView from "@/views/student/StudentFormView.vue";
+import TeacherFormView from "@/views/teacher/TeacherFormView.vue";
+import axios from 'axios';
 
 
 
@@ -46,6 +48,11 @@ const router = createRouter({
         name: 'StudentForm',
         component: StudentFormView
 
+    },
+    {
+        path: '/teacher-form',
+        name: 'TeacherForm',
+        component: TeacherFormView
     },
     {
       path: '/register',
@@ -157,6 +164,23 @@ router.beforeEach(() => {
 
 router.afterEach(() => {
   NProgress.done();
+});
+
+
+router.beforeEach((to, from, next) => {
+  // 从本地存储中获取令牌
+  const token = localStorage.getItem('access_token');
+
+  if (token) {
+    // 如果令牌存在，将其设置到 axios 的请求头中
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  } else {
+    // 如果令牌不存在，清除可能存在的旧令牌
+    delete axios.defaults.headers.common['Authorization'];
+  }
+
+  // 继续导航
+  next();
 });
 
 export default router;

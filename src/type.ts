@@ -16,8 +16,7 @@ export interface Teacher {
   firstname: string;
   surname: string;
   department: string;
-  JoinedDate: string;
-  profileImage: string;
   advisee: Student[];
+  images: string[];
   name?: string;  // 可选的 name 字段，如果需要
 }

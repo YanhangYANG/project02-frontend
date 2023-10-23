@@ -1,19 +1,14 @@
 import axios from "axios";
 import type { AxiosInstance, AxiosResponse } from "axios";
+import apiClient from "@/services/AxiosClient";
 import type { Teacher } from "@/type";
-
-const apiClient: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL,
-  withCredentials: false,
-  headers: {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-  },
-});
 
 export default {
   getAllteachers(): Promise<AxiosResponse<Teacher[]>> {
     return apiClient.get<Teacher[]>("/advisors");
+  },
+  searchTeachersByName(name: string): Promise<AxiosResponse<Teacher[]>> {
+    return apiClient.get<Teacher[]>(`/advisors/searchByTeacherFirstname?firstname=${name}`);
   },
   getTeachers(
     perPage: number,
@@ -28,4 +23,7 @@ export default {
       "advisors/" + id.toString(),
     );
   },
+  saveTeacher(event: Teacher): Promise<AxiosResponse<Teacher>> {
+    return apiClient.post < Teacher > ('/advisors', event)
+  }
 };

@@ -27,7 +27,7 @@ TeacherService.getTeacherById(String(props.teacherId))
     
     
       <div class="  bg-gray-50 rounded-lg p-5 m-4 shadow-xl ring-1 ring-gray-900/5 ">
-        <img class="w-48 h-48 rounded-full mx-auto object-cover" :src="teacher?.profileImage" alt="Profile picture">
+        <img class="w-48 h-48 rounded-full mx-auto object-cover" :src="teacher?.images[0]" alt="Profile picture">
         <h2 class="text-center text-2xl font-semibold mt-3">{{ teacher?.firstname }} {{ teacher?.surname }}</h2>
         <h2 class="text-center text-2xl font-semibold mt-3">{{ teacher?.id }}</h2>
         <p class="text-center text-gray-600 mt-1">{{teacher?.department}} department</p>
@@ -36,7 +36,7 @@ TeacherService.getTeacherById(String(props.teacherId))
         </div>
         <div class="mt-5">
 
-          <p class="text-gray-600 mt-2">Join Date:               {{ teacher?.JoinedDate }}</p>
+
           <hr class="border-gray-400 w-auto">
           
           <a href="/teacher"

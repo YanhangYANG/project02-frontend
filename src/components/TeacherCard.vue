@@ -19,7 +19,7 @@ const props = defineProps({
       }"
     >
     <div class="max-w-sm rounded overflow-hidden bg-[rgb(245,244,245)] shadow-lg hover:shadow-xl w-80 hover:bg-[rgb(210,209,211)]">
-      <img class="w-full h-56 object-cover" :src="teacher?.profileImage" />
+      <img class="w-full h-56 object-cover" :src="teacher?.images[0]" />
       <div class="px-6 py-4">
         <div class="mb-2">
           <h2 class="text-xl font-bold text-gray-900 mb-3">{{ teacher?.firstname }} {{ teacher?.surname }}</h2>

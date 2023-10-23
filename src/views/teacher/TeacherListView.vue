@@ -84,6 +84,21 @@ onBeforeUnmount(() => {
     clearTimeout(timeoutId); // Clear the timeout when the component is unmounted
   }
 });
+
+
+// 定义 ref 来存储搜索输入和搜索结果
+const searchInput = ref('');
+const searchResult = ref([]);
+
+// 定义搜索方法
+const searchTeachers = async () => {
+  try {
+    const response = await TeacherService.searchTeachersByFirstname(searchInput.value);
+    searchResult.value = response.data;
+  } catch (error) {
+    console.error('Error searching teachers:', error);
+  }
+};
 </script>
 
 
@@ -116,6 +131,7 @@ onBeforeUnmount(() => {
     </div>
   </div>
   <main class="flex flex-col items-center">
+
     <div class="container mt-12 grid grid-cols-3 place-items-center gap-12">
       <TeacherCard v-for="teacher in teachers" :key="teacher.id" :teacher="teacher"></TeacherCard>
     </div>

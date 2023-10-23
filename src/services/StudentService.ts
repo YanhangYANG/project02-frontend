@@ -2,16 +2,8 @@ import axios from "axios";
 import type { AxiosInstance, AxiosResponse } from "axios";
 import type { Student } from "@/type";
 import type { Teacher } from "@/type";
-import { inject, provide } from "vue";
+import apiClient from "@/services/AxiosClient";
 
-const apiClient: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL,
-  withCredentials: false,
-  headers: {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-  },
-});
 
 export default {
   getStudents(
