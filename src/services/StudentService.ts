@@ -30,7 +30,9 @@ export default {
   getTeacherByTeacherID(id: string): Promise<AxiosResponse<Teacher>> {
     return apiClient.get<Teacher>("advisors/" + id.toString());
   },
-
+  saveStudent(event: Student): Promise<AxiosResponse<Student>> {
+    return apiClient.post < Student > ('/students', event)
+  }
 
 };
 

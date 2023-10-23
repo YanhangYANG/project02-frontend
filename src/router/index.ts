@@ -13,6 +13,8 @@ import StudentService from "../services/StudentService";
 import TeacherService from "../services/TeacherService";
 import LoginView from "@/views/login/LoginView.vue";
 import RegisterView from "@/views/login/RegisterView.vue";
+import StudentFormView from "@/views/student/StudentFormView.vue";
+
 
 
 
@@ -37,6 +39,12 @@ const router = createRouter({
       path: '/login',
       name: 'Login',
       component: LoginView
+
+    },
+    {
+     path: '/student-form',
+        name: 'StudentForm',
+        component: StudentFormView
 
     },
     {
@@ -121,6 +129,7 @@ const router = createRouter({
         },
       ],
     },
+
     {
       path: '/404/:resource',
       name: '404-resource',

@@ -12,6 +12,9 @@ const apiClient: AxiosInstance = axios.create({
 });
 
 export default {
+  getAllteachers(): Promise<AxiosResponse<Teacher[]>> {
+    return apiClient.get<Teacher[]>("/advisors");
+  },
   getTeachers(
     perPage: number,
     page: number,

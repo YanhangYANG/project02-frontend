@@ -21,7 +21,7 @@
     <a @click="navigate" :class="isActive ? 'border-b-4 border-[rgb(36,215,96)] pb-3 cursor-pointer' : 'hover:border-b-4 hover:border-[rgb(158,118,180)] pb-1 cursor-pointer '">Login</a>
   </RouterLink>
         <h1 class="font-xl font-bold">|</h1>
-        <RouterLink :to="{name:'AddStudentAdvisor'}" custom v-slot="{ navigate, isActive }">
+        <RouterLink :to="{name:'StudentForm'}" custom v-slot="{ navigate, isActive }">
           <a @click="navigate" :class="isActive ? 'border-b-4 border-[rgb(36,215,96)] pb-3 cursor-pointer' : 'hover:border-b-4 hover:border-[rgb(158,118,180)] pb-1 cursor-pointer '">Add Student</a>
         </RouterLink>
 </nav>
