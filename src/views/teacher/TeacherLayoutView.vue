@@ -32,7 +32,16 @@ TeacherService.getTeacherById(String(props.teacherId))
         <h2 class="text-center text-2xl font-semibold mt-3">{{ teacher?.id }}</h2>
         <p class="text-center text-gray-600 mt-1">{{teacher?.department}} department</p>
         <div class="flex justify-center mt-5">
-          <h2 class="text-center text-2xl">Teaching subjects:     {{ teacher?.academicPosition}}</h2>
+          <h2 class="text-center text-2xl">Position:{{ teacher?.academicPosition}}</h2>
+        </div>
+        <div class="flex justify-center mt-5">
+          <h2 class="text-center text-2xl"> advisee:     </h2>
+          <div class="flex flex-col items-center">
+            <div v-for="(advisee, index) in teacher?.advisee" :key="index" class="text-center mb-2">
+              {{ advisee.firstname }} {{advisee.surname}}
+            </div>
+          </div>
+          <h2 class="text-center text-2xl">      </h2>
         </div>
         <div class="mt-5">
 
