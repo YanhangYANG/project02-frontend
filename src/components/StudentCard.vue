@@ -21,7 +21,7 @@ const props = defineProps({
   <article>
     <RouterLink :to="{
       name: 'student-detail',
-      params: { studentId: student?.studentId },
+      params: { studentId: student?.id },
     }">
       <div class="max-w-sm rounded bg-[rgb(240,239,239)] overflow-hidden shadow-xl hover:shadow-xl w-80 hover:bg-[rgb(210,209,211)]">
         <img class="w-full h-56 object-cover" :src="student?.images[0]" />

@@ -4,6 +4,7 @@ import Sidebar from "@/components/Sidebar.vue";
 import { computed } from "vue";
 
 const route = useRoute();
+
 const showSidebar = computed(() => {
   // Add conditions based on the route names where you want to hide the sidebar
   return route.name !== 'student-detail' && route.name !== 'teacher-detail' && route.name !== '404-resource';

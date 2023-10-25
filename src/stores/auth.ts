@@ -1,43 +1,62 @@
 import { defineStore } from 'pinia';
-// 导入你自定义的 apiClient 实例
 import apiClient from '@/services/AxiosClient';
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
         token: localStorage.getItem('access_token') || null,
+        username: localStorage.getItem('username') || null,
+        roles: localStorage.getItem('roles') ? JSON.parse(localStorage.getItem('roles') as string) : [],
     }),
+    getters: {
+        currentUserName(): string {
+            return this.username || '';
+        },
+        isAdmin(): boolean {
+            return this.roles.includes('ROLE_ADMIN') || false;
+        },
+        isFastFit(): boolean {
+            return this.roles.includes('ROLE_FASTFIT') || false;
+        },
+        isDistributor(): boolean {
+            return this.roles.includes('ROLE_DISTRIBUTOR') || false;
+        },
+    },
     actions: {
         login(email: string, password: string) {
-            // 使用导入的 apiClient 实例发送请求
             return apiClient
                 .post('/api/v1/auth/authenticate', {
                     username: email,
-                    password: password
+                    password: password,
                 })
                 .then((response) => {
-                    // Set the token
                     this.token = response.data.access_token;
-                    localStorage.setItem('access_token', this.token as string);
-                    // 更新 apiClient 实例的 headers 而不是 axios.defaults
-                    apiClient.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+                    this.username = response.data.username;  // Assuming username and roles come from server response
+                    this.roles = response.data.roles;
 
+                    localStorage.setItem('access_token', this.token as string);
+                    localStorage.setItem('username', this.username as string);
+                    localStorage.setItem('roles', JSON.stringify(this.roles));
+
+                    apiClient.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
                     return response;
                 });
         },
         logout() {
-            // 向服务器发送登出请求
             apiClient.post('/api/v1/auth/logout')
                 .then(() => {
-                    // 请求成功，清除客户端状态
-                    console.log('logout')
                     this.token = null;
+                    this.username = null;
+                    this.roles = [];
+
                     localStorage.removeItem('access_token');
-                    localStorage.removeItem('user');
+                    localStorage.removeItem('username');
+                    localStorage.removeItem('roles');
                 })
                 .catch(error => {
-                    // 处理请求失败的情况
                     console.error('Logout failed:', error);
                 });
         },
-    }
+    },
 });
+
+

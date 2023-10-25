@@ -1,12 +1,53 @@
 <script setup lang="ts">
 import type { Student,Teacher } from '@/type'  // Assuming you have a Student type defined
 import StudentService from "@/services/StudentService";
+import {Field, Form, useForm} from 'vee-validate';
 import { useRouter } from 'vue-router'
 import { ref,onMounted } from 'vue'
 import { useMessageStore } from '@/stores/message';
 import BaseInput from "@/components/BaseInput.vue";
 import ImageUploadSingle from '@/components/ImageUploadSingle.vue'
 import TeacherService from "@/services/TeacherService";
+import { defineRule } from 'vee-validate';
+import {required, email, min, numeric} from '@vee-validate/rules';
+import * as yup from 'yup';
+
+const schema = yup.object({
+  email: yup.string().email().required(),
+  name: yup.string().required(),
+});
+
+defineRule('noNumbers', (value: string) => {
+  if (/\d/.test(value)) {
+    return 'This field cannot contain numbers';
+  }
+  return true;
+});
+
+defineRule('required', (value: string) => {
+  if (!value || !value.length) {
+    return 'This field is required';
+  }
+  return true;
+});
+defineRule('numeric', numeric);
+defineRule('studentIdRule', (value: string) => {
+  if (!value.startsWith('6')) {
+    return 'Student ID must start with 6';
+  }
+
+  if (value.length !== 9) {
+    return 'Student ID must be exactly 9 digits long';
+  }
+
+  if (!/^\d+$/.test(value)) {
+    return 'Student ID must contain only digits';
+  }
+
+  return true;
+});
+
+
 
 const store = useMessageStore();
 const advisors = ref<Teacher[]>([]);
@@ -26,9 +67,22 @@ const student = ref<Student>({
   firstname: '',
   surname: '',
   department: '',
-  advisor: null,
+  advisor: {
+    "id": 3,
+    "teacherId": "003",
+    "academicPosition": "undefined",
+    "firstname": "undefined teacher",
+    "surname": "",
+    "department": "undefined",
+    "advisee": [],
+    "images": [
+      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+    ]
+  },
   images: []
 })
+
+const { errors, handleSubmit } = useForm();
 
 function saveStudent() {
   StudentService.saveStudent(student.value)
@@ -45,36 +99,46 @@ function saveStudent() {
     router.push({name: 'network-error'})
   })
 }
+
+
+const onSubmit = handleSubmit(saveStudent);
+
 </script>
 
 <template>
   <div>
     <h1>Add a Student</h1>
-    <form @submit.prevent="saveStudent">
-      <BaseInput
-          v-model="student.studentId"
-      type="text"
-      label="Student ID" />
+    <form @submit="onSubmit">
 
-      <BaseInput
-          v-model="student.studentPw"
-      type="password"
-      label="Password" />
+      <div>
+        <h1>Student ID</h1>
+      <Field name="studentId" rules="studentIdRule" v-model="student.studentId"></Field>
+      <span class="error-text">{{  errors['studentId']  }}</span>
+      </div>
 
-      <BaseInput
-          v-model="student.firstname"
-      type="text"
-      label="First Name" />
+      <div>
+        <h1>Password</h1>
+        <Field name="studentPw" rules="required" type="password" v-model="student.studentPw"></Field>
+        <span class="error-text">{{  errors['studentPw']  }}</span>
+      </div>
 
-      <BaseInput
-          v-model="student.surname"
-      type="text"
-      label="Surname" />
+      <div>
+        <h1>Firstname</h1>
+        <Field name="firstname" :rules="{ required: true, noNumbers: true }" v-model="student.firstname"></Field>
+        <span class="error-text">{{ errors['firstname'] }}</span>
+      </div>
 
-      <BaseInput
-          v-model="student.department"
-      type="text"
-      label="Department" />
+      <div>
+        <h1>Surname</h1>
+        <Field name="surname" :rules="{ required: true, noNumbers: true }" v-model="student.surname"></Field>
+        <span class="error-text">{{ errors['surname'] }}</span>
+      </div>
+
+      <div>
+        <h1>Department</h1>
+        <Field name="department" rules="required" v-model="student.department"></Field>
+        <span class="error-text">{{  errors['department']  }}</span>
+      </div>
 
       <ImageUploadSingle v-model="student.images" />
 
@@ -90,6 +154,10 @@ function saveStudent() {
   </div>
 </template>
 <style>
+.error-text {
+  color: red;
+  font-size: 20px;
+}
 b,
 strong {
   font-weight: bolder;

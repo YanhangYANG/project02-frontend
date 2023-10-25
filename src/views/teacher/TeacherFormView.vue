@@ -1,14 +1,52 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+
 import { useRouter } from 'vue-router';
 import { useMessageStore } from '@/stores/message';
 import BaseInput from "@/components/BaseInput.vue";
 import ImageUploadSingle from '@/components/ImageUploadSingle.vue'
 import TeacherService from "@/services/TeacherService";
 import type { Teacher } from '@/type';
+import {defineRule, Field, Form, useForm} from 'vee-validate';
+import {required, email, min, numeric} from '@vee-validate/rules';
+import * as yup from 'yup';
+
+import StudentService from "@/services/StudentService";
+
+const allStudents = ref<Student[]>([]);
 
 const store = useMessageStore();
 const router = useRouter();
+
+defineRule('teacherIdRule', (value: string) => {
+  if (!value.startsWith('t')) {
+    return 'Teacher ID must start with "t"';
+  }
+
+  if (value.length > 4) {
+    return 'Teacher ID must not exceed 4 characters';
+  }
+
+  if (!/^t\d{1,3}$/.test(value)) {
+    return 'Teacher ID must follow the format t001, t002, etc.';
+  }
+
+  return true;
+});
+
+defineRule('noNumbers', (value: string) => {
+  if (/\d/.test(value)) {
+    return 'This field cannot contain numbers';
+  }
+  return true;
+});
+
+defineRule('required', (value: string) => {
+  if (!value || !value.length) {
+    return 'This field is required';
+  }
+  return true;
+});
 
 const teacher = ref<Teacher>({
   id: 0,
@@ -24,8 +62,9 @@ const teacher = ref<Teacher>({
 async function saveTeacher() {
   try {
     const response = await TeacherService.saveTeacher(teacher.value);
+    teacher.value.advisee = selectedAdvisees.value;
     console.log(response.data);
-    router.push({ path: '/' });
+    router.push({ path: '/teacher' });
     store.updateMessage('You have successfully added a new teacher: ' + response.data.firstname + ' ' + response.data.surname);
     setTimeout(() => {
       store.updateMessage('');
@@ -35,17 +74,67 @@ async function saveTeacher() {
     router.push({ name: 'network-error' });
   }
 }
+
+onMounted(async () => {
+  try {
+    // 这里我用了1和10000仅作示例，实际上你可能需要一个更好的分页或获取所有数据的策略
+    const response = await StudentService.getStudents(100, 1);
+    allStudents.value = response.data;
+  } catch (error) {
+    console.error('Failed to fetch students:', error);
+  }
+});
+
+const selectedAdvisees = ref([]);
+
+const { errors, handleSubmit } = useForm();
+const onSubmit = handleSubmit(saveTeacher);
+
 </script>
 
 <template>
   <div>
     <h1>Add a Teacher</h1>
     <form @submit.prevent="saveTeacher">
-      <BaseInput v-model="teacher.teacherId" type="text" label="Teacher ID" />
-      <BaseInput v-model="teacher.academicPosition" type="text" label="Academic Position" />
-      <BaseInput v-model="teacher.firstname" type="text" label="First Name" />
-      <BaseInput v-model="teacher.surname" type="text" label="Surname" />
-      <BaseInput v-model="teacher.department" type="text" label="Department" />
+      <div>
+        <h1>Teacher ID</h1>
+        <Field name="teacherId" rules="teacherIdRule" v-model="teacher.teacherId"></Field>
+        <span class="error-text">{{  errors['teacherId']  }}</span>
+      </div>
+      <label for="academicPosition">Academic Position</label>
+      <select id="academicPosition" v-model="teacher.academicPosition">
+        <option value="">Please select an Academic Position</option>
+        <option value="Deans">Deans</option>
+        <option value="leaders">Leaders</option>
+        <option value="lecturers">Lecturers</option>
+        <option value="teaching assistants">Teaching Assistants</option>
+      </select>
+      <div>
+        <h1>Firstname</h1>
+        <Field name="firstname" :rules="{ required: true, noNumbers: true }" v-model="teacher.firstname"></Field>
+        <span class="error-text">{{ errors['firstname'] }}</span>
+      </div>
+      <div>
+        <h1>Surname</h1>
+        <Field name="surname" :rules="{ required: true, noNumbers: true }" v-model="teacher.surname"></Field>
+        <span class="error-text">{{ errors['surname'] }}</span>
+      </div>
+      <div>
+        <h1>Department</h1>
+        <Field name="department" :rules="{ required: true, noNumbers: true }" v-model="teacher.department"></Field>
+        <span class="error-text">{{ errors['surname'] }}</span>
+      </div>
+      <div class="mb-4">
+        <label for="advisee" class="block text-sm font-medium text-gray-600 mb-1">Select Advisees</label>
+        <select id="advisee" v-model="teacher.advisee" multiple
+                class="mt-1 p-2 w-full border rounded-md">
+          <option v-for="student in allStudents" :key="student.id" :value="student">
+            {{ student.firstname }} {{ student.surname }}
+          </option>
+        </select>
+      </div>
+
+
       <ImageUploadSingle v-model="teacher.images" label="Profile Image" />
 
       <button class="button" type="submit">Submit</button>
@@ -58,6 +147,10 @@ async function saveTeacher() {
 </template>
 
 <style>
+.error-text {
+  color: red;
+  font-size: 20px;
+}
 b,
 strong {
   font-weight: bolder;

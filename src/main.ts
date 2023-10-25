@@ -2,6 +2,9 @@ import "./assets/main.css";
 import "./assets/style.css";
 import 'nprogress/nprogress.css';
 import './assets/nprogress-custom.css';
+import uploader from 'vue-simple-uploader'
+
+import 'vue-simple-uploader/dist/style.css'
 
 
 
@@ -21,6 +24,9 @@ if (token) {
 const app = createApp(App);
 
 app.use(createPinia());
+
+
 app.use(router);
+app.use(uploader)
 
 app.mount("#app");

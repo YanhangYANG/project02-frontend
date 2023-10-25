@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { type Teacher } from "@/type";
+import { useAuthStore } from "@/stores/auth";
+
+const authStore = useAuthStore();
+
+
 import TeacherService from "@/services/TeacherService";
 
 const props = defineProps({
@@ -30,18 +35,41 @@ TeacherService.getTeacherById(String(props.teacherId))
         <img class="w-48 h-48 rounded-full mx-auto object-cover" :src="teacher?.images[0]" alt="Profile picture">
         <h2 class="text-center text-2xl font-semibold mt-3">{{ teacher?.firstname }} {{ teacher?.surname }}</h2>
         <h2 class="text-center text-2xl font-semibold mt-3">{{ teacher?.id }}</h2>
-        <p class="text-center text-gray-600 mt-1">{{teacher?.department}} department</p>
+        <p class="text-right text-2xl text-gray-600 mt-1">{{teacher?.department}} department</p>
         <div class="flex justify-center mt-5">
           <h2 class="text-center text-2xl">Position:{{ teacher?.academicPosition}}</h2>
+
         </div>
+        <h2 class="text-center text-2xl"> advisee:     </h2>
         <div class="flex justify-center mt-5">
-          <h2 class="text-center text-2xl"> advisee:     </h2>
+
           <div class="flex flex-col items-center">
             <div v-for="(advisee, index) in teacher?.advisee" :key="index" class="text-center mb-2">
+              <RouterLink :to="{
+                 name: 'student-layout',
+                 params: { studentId: advisee.id },
+                 }">
+              <img class="w-10 h-10 rounded-2xl mx-auto object-cover" :src="advisee.images[0]" alt="Profile picture">
               {{ advisee.firstname }} {{advisee.surname}}
+</RouterLink>
             </div>
           </div>
+
+
           <h2 class="text-center text-2xl">      </h2>
+        </div>
+        <div class="flex justify-between" v-if="authStore.isAdmin || authStore.isFastFit" >
+          <!-- 第一个按钮 -->
+          <button class="bg-white text-gray-800 font-bold rounded border-b-2 border-blue-500 hover:border-purple-600 hover:bg-purple-600 hover:text-white shadow-md py-2 px-6 inline-flex items-center">
+            <span class="mr-2">Edit</span>
+            <!-- SVG 省略 -->
+          </button>
+
+          <!-- 第二个按钮 -->
+          <button class="bg-white text-gray-800 font-bold rounded border-b-2 border-blue-500 hover:border-blue-600 hover:bg-blue-500 hover:text-white shadow-md py-2 px-6 inline-flex items-center">
+            <span class="mr-2">Save</span>
+            <!-- SVG 省略 -->
+          </button>
         </div>
         <div class="mt-5">
 

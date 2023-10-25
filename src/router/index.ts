@@ -1,5 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Student from "../views/student/StudentListView.vue";
+import Announcements from "../views/announcement/AnnouncementListView.vue";
+import AnnouncementDetailView from "@/views/announcement/AnnouncementDetailView.vue";
+import AnnouncementLayoutView from "@/views/announcement/AnnouncementLayoutView.vue";
 import StudentDetailView from "@/views/student/StudentDetailView.vue";
 import StudentLayoutView from "@/views/student/StudentLayoutView.vue";
 import Teacher from "../views/teacher/TeacherListView.vue";
@@ -16,6 +19,8 @@ import RegisterView from "@/views/login/RegisterView.vue";
 import StudentFormView from "@/views/student/StudentFormView.vue";
 import TeacherFormView from "@/views/teacher/TeacherFormView.vue";
 import axios from 'axios';
+import AnnouncementService from "@/services/AnnouncementService";
+import AnnouncementFormView from "@/views/announcement/AnnouncementFormView.vue";
 
 
 
@@ -33,9 +38,23 @@ const router = createRouter({
       }),
     },
     {
+      path: '/announcements',
+      name: 'Announcements',
+      component: Announcements,
+      props: (route) => ({
+        page: parseInt((route.query?.page as string) || "1"),
+        pageSize: parseInt((route.query?.page as string) || "2"),
+      }),
+    },
+    {
       path: '/add-student-advisor',
       name: 'AddStudentAdvisor',
       component: AddStudentAdvisor
+    },
+    {
+      path: '/add-announcement',
+      name: 'AddAnnouncement',
+      component: AnnouncementFormView
     },
     {
       path: '/login',
@@ -136,6 +155,41 @@ const router = createRouter({
         },
       ],
     },
+
+    {
+      path: '/announcements/:announcementId',
+      name: 'announcement-layout',
+      component: AnnouncementLayoutView,
+      props: true,
+      beforeEnter: (to) => {
+        const Id: string = to.params.announcementId as string;
+        const eventStore = useEventStore();
+        return AnnouncementService.getAnnouncementById(Id)
+            .then((response) => {
+              if (!response.data) {
+                return { name: '404-resource', params: { resource: 'announcement' } };
+              } else {
+                eventStore.setEvent(response.data as any);
+              }
+            })
+            .catch((error) => {
+              if (error.response && error.response.status === 404) {
+                return { name: '404-resource', params: { resource: 'announcement' } };
+              } else {
+                return { name: 'network-error' };
+              }
+            });
+      },
+      children: [
+        {
+          path: '',
+          name: 'announcement-detail',
+          component: AnnouncementDetailView,
+          props: true
+        },
+      ],
+    },
+
 
     {
       path: '/404/:resource',

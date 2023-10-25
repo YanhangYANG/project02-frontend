@@ -14,6 +14,9 @@ const props = defineProps({
 
 const student = ref<Student | null>(null);
 const teacher = ref<Teacher | null>(null);
+const editedStudent = ref<Student | null>(null); // 新增
+const isEditing = ref(false); // 新增
+
 const comments = computed(() => {
   if (student.value) {
     return commentsStore.getComments(student.value.studentId);
@@ -70,6 +73,20 @@ StudentService.getStudentById(String(props.studentId))
       console.error(error);  // 添加错误处理，将错误打印到控制台
     });
 
+function editStudent() {
+  editedStudent.value = { ...(student.value as Student) };
+  isEditing.value = true;
+}
+
+
+async function saveChanges() {
+  if (editedStudent.value && editedStudent.value.id) {
+    const { data } = await StudentService.updateStudent(editedStudent.value.id.toString(), editedStudent.value);
+    student.value = data;
+    isEditing.value = false;
+  }
+}
+
 </script>
 
 <template>
@@ -79,10 +96,11 @@ StudentService.getStudentById(String(props.studentId))
 
     <div v-if="student" class="space-y-4 mt-3">
       <h1 class="text-2xl font-bold">Student Information:</h1>
+
       <div
         class="p-5 w-96 h-auto rounded-lg bg-gradient-to-b from-[rgb(242,243,244)] m-4 shadow-xl ring-1 ring-gray-900/5">
         <!-- Student Details -->
-        <img class="w-full h-56 object-cover" :src="student.profileImage" />
+        <img class="w-full h-56 object-cover" :src="student.images[0]" />
         <div class="flex items-center space-x-4 mb-4">
 
           <div>
@@ -92,15 +110,28 @@ StudentService.getStudentById(String(props.studentId))
             </h2>
             <h2 class="text-2xl font-bold mb-2">StudentId:</h2>
             <h2 class="text-2xl mb-2">{{ student.studentId }}</h2>
-
-
-            <h2 class="text-2xl font-bold mb-2">profile image link:</h2>
-            <a :href="student.profileImage" class="text-2xl text-sky-500 hover:text-sky-600">Check iamge &rarr;</a>
           </div>
+
+          </div>
+        <div class="flex justify-between">
+          <!-- 第一个按钮 -->
+          <button class="bg-white text-gray-800 font-bold rounded border-b-2 border-blue-500 hover:border-blue-600 hover:bg-blue-500 hover:text-white shadow-md py-2 px-6 inline-flex items-center">
+            <span class="mr-2">Edit</span>
+            <!-- SVG 省略 -->
+          </button>
+
+          <!-- 第二个按钮 -->
+          <button class="bg-white text-gray-800 font-bold rounded border-b-2 border-blue-500 hover:border-blue-600 hover:bg-blue-500 hover:text-white shadow-md py-2 px-6 inline-flex items-center">
+            <span class="mr-2">Save</span>
+            <!-- SVG 省略 -->
+          </button>
+        </div>
+
+        <!-- 新增的编辑按钮 -->
+         <!-- 新增的保存按钮 -->
         </div>
       </div>
       <!-- Teacher Details -->
-    </div>
 
     <div class="w-1/2 p-4 mt-3">
       <!-- Comments Section -->
@@ -145,7 +176,7 @@ StudentService.getStudentById(String(props.studentId))
         <h1 class="text-2xl font-bold mb-1">Advisor:</h1>
         <div
           class="p-5 w-100 h-40 flex items-center rounded-lg bg-gradient-to-b from-[rgb(242,243,244)] m-4 shadow-xl ring-1 ring-gray-900/5">
-          <img class="w-24 h-24 object-cover rounded-md shadow-lg " :src="teacher?.profileImage" />
+          <img class="w-24 h-24 object-cover rounded-md shadow-lg " :src="teacher?.images[0]" />
           <div class="ml-4">
             <h1 class="mb-2 text-2xl font-bold">Name: {{ teacher?.firstname }} {{ teacher?.surname }}</h1>
             <h1 class="mb-3 text-lg">Advisor ID:   <span class=" mb-3 rounded-lg italic font-bold bg-[rgb(158,118,180)] py-1 px-2 text-xl text-white">{{ teacher?.teacherId }}</span></h1>

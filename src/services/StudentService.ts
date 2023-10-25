@@ -15,8 +15,8 @@ export default {
       "/students?_limit=" + perPage + "&_page=" + page,
     );
   },
-  getStudentById(studentId: string): Promise<AxiosResponse<Student>> {
-    return apiClient.get<Student>("/students/?id=" + studentId.toString());
+  getStudentById(id: string): Promise<AxiosResponse<Student>> {
+    return apiClient.get<Student>("students/" + id.toString());
   },
 
   getTeacherByTeacherID(id: string): Promise<AxiosResponse<Teacher>> {
@@ -24,7 +24,11 @@ export default {
   },
   saveStudent(event: Student): Promise<AxiosResponse<Student>> {
     return apiClient.post < Student > ('/students', event)
-  }
+  },
+  updateStudent(id: string, updatedStudent: Student): Promise<AxiosResponse<Student>> {
+    return apiClient.put<Student>(`/students/${id}`, updatedStudent);
+  },
+
 
 };
 

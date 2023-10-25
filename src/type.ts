@@ -20,3 +20,11 @@ export interface Teacher {
   images: string[];
   name?: string;  // 可选的 name 字段，如果需要
 }
+
+export interface Announcement {
+    id: number;
+    title: string;
+    content: string;
+    date: string;
+    files: string[];
+}
