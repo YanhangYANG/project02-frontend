@@ -7,6 +7,7 @@
       <h1>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</h1>
       <h1>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</h1>
     </div >
+
     <div >
       <nav class="flex  text-lg space-x-8">
   <RouterLink :to="{name:'students'}" custom v-slot="{ navigate, isActive }">
@@ -44,9 +45,16 @@
 
         <h1 class="font-xl font-bold" v-if="authStore.isAdmin">|</h1>
 
-        <RouterLink :to="{name:'AddAnnouncement'}" v-if="authStore.isAdmin || authStore.isFastFit" custom v-slot="{ navigate, isActive }">
+        <RouterLink :to="{name:'Overallpage'}" v-if="authStore.isAdmin" custom v-slot="{ navigate, isActive }">
           <a @click="navigate" :class="isActive ? 'border-active-class' : 'border-inactive-class'">
-            Add Announcement
+            Overall Page
+          </a>
+        </RouterLink>
+
+        <!-- 当身份为 isFastFit 时 -->
+        <RouterLink :to="{name:'Announcements'}" v-else-if="authStore.isFastFit" custom v-slot="{ navigate, isActive }">
+          <a @click="navigate" :class="isActive ? 'border-active-class' : 'border-inactive-class'">
+            Add Announcements
           </a>
         </RouterLink>
 
@@ -61,6 +69,7 @@
           </h1>
         </div>
 
+
 </nav>
 </div >
   
@@ -71,8 +80,24 @@
 <script setup lang="ts">
 import { RouterLink } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
+import StudentService from "@/services/StudentService";  // 需要引入你的StudentService
+import TeacherService from "@/services/TeacherService";
+import {onMounted, ref} from "vue";
 
 const authStore = useAuthStore();
+
+const studentCount = ref(0);  // 学生数量
+const teacherCount = ref(0);  // 老师数量
+
+const fetchCounts = async () => {
+  const students = await StudentService.getStudents(1000, 1);  // 假设最大为1000，你也可以更改这个值
+  const teachers = await TeacherService.getAllteachers();
+
+  studentCount.value = students.data.length;
+  teacherCount.value = teachers.data.length;
+};
+
+onMounted(fetchCounts);
 
 const logout = () => {
   authStore.logout();

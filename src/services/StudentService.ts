@@ -6,6 +6,9 @@ import apiClient from "@/services/AxiosClient";
 
 
 export default {
+  getAllStudents(): Promise<AxiosResponse<Student[]>> {
+    return apiClient.get<Student[]>("/students");
+  },
   getStudents(
     perPage: number,
     page: number,

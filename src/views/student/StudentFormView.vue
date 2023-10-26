@@ -11,6 +11,13 @@ import TeacherService from "@/services/TeacherService";
 import { defineRule } from 'vee-validate';
 import {required, email, min, numeric} from '@vee-validate/rules';
 import * as yup from 'yup';
+import teacherService from "@/services/TeacherService";
+
+import { useAuthStore } from "@/stores/auth";
+
+const authStore = useAuthStore();
+
+
 
 const schema = yup.object({
   email: yup.string().email().required(),
@@ -47,6 +54,12 @@ defineRule('studentIdRule', (value: string) => {
   return true;
 });
 
+function convertStudentForBackend(frontendStudent) {
+  return {
+    ...frontendStudent,
+    advisor: frontendStudent.advisor ? { id: frontendStudent.advisor.id } : null
+  };
+}
 
 
 const store = useMessageStore();
@@ -60,45 +73,40 @@ onMounted(async () => {
     console.error('Failed to load advisors:', error);
   }
 });
-const student = ref<Student>({
+const student = ref({
   id: 0,
   studentId: '',
   studentPw: '',
   firstname: '',
   surname: '',
   department: '',
-  advisor: {
-    "id": 3,
-    "teacherId": "003",
-    "academicPosition": "undefined",
-    "firstname": "undefined teacher",
-    "surname": "",
-    "department": "undefined",
-    "advisee": [],
-    "images": [
-      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-    ]
-  },
-  images: []
-})
+  advisor: null,
+  images: [],
+});
 
 const { errors, handleSubmit } = useForm();
 
 function saveStudent() {
-  StudentService.saveStudent(student.value)
+  // 使用新的函数转换 student 对象
+  const studentForBackend = convertStudentForBackend(student.value);
+
+  // 然后传递转换后的对象给后端服务
+  StudentService.saveStudent(studentForBackend)
       .then((response) => {
-        console.log(response.data)
+        console.log(response.data);
         router.push({
           path: '/'
-        })
-        store.updateMessage('You have successfully added a new student: ' + response.data.firstname + ' ' + response.data.surname)
+        });
+        store.updateMessage('You have successfully added a new student: ' + response.data.firstname + ' ' + response.data.surname);
         setTimeout(() => {
-          store.updateMessage('')
-        }, 3000)
-      }).catch(() => {
-    router.push({name: 'network-error'})
-  })
+          store.updateMessage('');
+        }, 3000);
+      })
+      .catch(() => {
+        router.push({name: 'network-error'});
+      });
 }
+
 
 
 const onSubmit = handleSubmit(saveStudent);
@@ -138,6 +146,15 @@ const onSubmit = handleSubmit(saveStudent);
         <h1>Department</h1>
         <Field name="department" rules="required" v-model="student.department"></Field>
         <span class="error-text">{{  errors['department']  }}</span>
+      </div>
+
+      <div class="mb-4" v-if="authStore.isAdmin">
+        <label for="advisee" class="block text-sm font-medium text-gray-600 mb-1">Select Advisees</label>
+        <select id="advisee" v-model="student.advisor" class="mt-1 p-2 w-full border rounded-md">
+          <option v-for="teachers in advisors" :key="teachers.id" :value="teachers">
+            {{ teachers.firstname }} {{ teachers.surname }}
+          </option>
+        </select>
       </div>
 
       <ImageUploadSingle v-model="student.images" />

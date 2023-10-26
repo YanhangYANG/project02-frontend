@@ -6,7 +6,7 @@ import { useMessageStore } from '@/stores/message';
 import BaseInput from "@/components/BaseInput.vue";
 import ImageUploadSingle from '@/components/ImageUploadSingle.vue'
 import TeacherService from "@/services/TeacherService";
-import type { Teacher } from '@/type';
+import type {Student, Teacher} from '@/type';
 import {defineRule, Field, Form, useForm} from 'vee-validate';
 import {required, email, min, numeric} from '@vee-validate/rules';
 import * as yup from 'yup';
@@ -119,19 +119,10 @@ const onSubmit = handleSubmit(saveTeacher);
         <Field name="surname" :rules="{ required: true, noNumbers: true }" v-model="teacher.surname"></Field>
         <span class="error-text">{{ errors['surname'] }}</span>
       </div>
-      <div>
+      <div class="mb-4">
         <h1>Department</h1>
         <Field name="department" :rules="{ required: true, noNumbers: true }" v-model="teacher.department"></Field>
         <span class="error-text">{{ errors['surname'] }}</span>
-      </div>
-      <div class="mb-4">
-        <label for="advisee" class="block text-sm font-medium text-gray-600 mb-1">Select Advisees</label>
-        <select id="advisee" v-model="teacher.advisee" multiple
-                class="mt-1 p-2 w-full border rounded-md">
-          <option v-for="student in allStudents" :key="student.id" :value="student">
-            {{ student.firstname }} {{ student.surname }}
-          </option>
-        </select>
       </div>
 
 
