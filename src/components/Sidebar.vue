@@ -29,7 +29,7 @@
 
         <h1 class="font-xl font-bold">|</h1>
 
-        <RouterLink :to="{name:'StudentForm'}" v-if="authStore.isAdmin || authStore.isDistributor" custom v-slot="{ navigate, isActive }">
+        <RouterLink :to="{name:'StudentForm'}" v-if="!authStore.token" custom v-slot="{ navigate, isActive }">
           <a @click="navigate" :class="isActive ? 'border-active-class' : 'border-inactive-class'">
             Student register
           </a>
@@ -52,13 +52,13 @@
         </RouterLink>
 
         <!-- 当身份为 isFastFit 时 -->
-        <RouterLink :to="{name:'Announcements'}" v-else-if="authStore.isFastFit" custom v-slot="{ navigate, isActive }">
+        <RouterLink :to="{name:'AddAnnouncement'}" v-else-if="authStore.isFastFit" custom v-slot="{ navigate, isActive }">
           <a @click="navigate" :class="isActive ? 'border-active-class' : 'border-inactive-class'">
             Add Announcements
           </a>
         </RouterLink>
 
-        <h1 class="font-xl font-bold" v-if="authStore.isAdmin|| authStore.isFastFit|| authStore.isDistributor">|</h1>
+        <h1 class="font-xl font-bold" v-if="authStore.isAdmin|| authStore.isFastFit">|</h1>
 
         <div class="flex items-center" v-if="authStore.isAdmin || authStore.isFastFit || authStore.isDistributor">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">

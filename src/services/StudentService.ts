@@ -26,7 +26,7 @@ export default {
     return apiClient.get<Teacher>("advisors/" + id.toString());
   },
   saveStudent(event: Student): Promise<AxiosResponse<Student>> {
-    return apiClient.post < Student > ('/students', event)
+    return apiClient.post < Student > ('/api/v1/auth/register', event)
   },
   updateStudent(id: string, updatedStudent: Student): Promise<AxiosResponse<Student>> {
     return apiClient.put<Student>(`/students/${id}`, updatedStudent);
