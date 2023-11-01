@@ -31,6 +31,11 @@ export default {
   updateStudent(id: string, updatedStudent: Student): Promise<AxiosResponse<Student>> {
     return apiClient.put<Student>(`/students/${id}`, updatedStudent);
   },
+  setRelation(studentId: string, teacherFirstname: string): Promise<AxiosResponse<any>> {
+    return apiClient.post(`/setRelation?studentId=${studentId}&teacherFirstname=${teacherFirstname}`);
+}
+
+
 
 
 };

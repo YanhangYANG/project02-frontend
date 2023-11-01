@@ -4,6 +4,7 @@ import { type Student } from "@/type";
 import StudentService from "@/services/StudentService";
 import { type Teacher } from "@/type";
 import { useCommentsStore } from "@/stores/comment";
+import TeacherService from "@/services/TeacherService";
 
 const commentsStore = useCommentsStore();
 
@@ -59,23 +60,27 @@ function submitComment() {
 
 // 修改链式调用中的数据处理
 StudentService.getStudentById(String(props.studentId))
-    .then((studentResponse) => {
-      // 直接将数据赋值给student.value，而不是将其视为数组
-      student.value = studentResponse.data as Student;
-      // 根据student.value.advisor.id获取教师信息
-      return StudentService.getTeacherByTeacherID(student.value?.advisor.id.toString());
-    })
-    .then((teacherResponse) => {
-      // 正确地将教师信息赋值给teacher.value
-      teacher.value = teacherResponse.data as Teacher;
-    })
-    .catch((error) => {
-      console.error(error);  // 添加错误处理，将错误打印到控制台
-    });
+  .then((studentResponse) => {
+    // 直接将数据赋值给student.value，而不是将其视为数组
+    student.value = studentResponse.data as Student;
+    // 根据student.value.advisor.id获取教师信息
+    return StudentService.getTeacherByTeacherID(student.value?.advisor.id.toString());
+  })
+  .then((teacherResponse) => {
+    // 正确地将教师信息赋值给teacher.value
+    teacher.value = teacherResponse.data as Teacher;
+  })
+  .catch((error) => {
+    console.error(error);  // 添加错误处理，将错误打印到控制台
+  });
 
 function editStudent() {
   editedStudent.value = { ...(student.value as Student) };
   isEditing.value = true;
+}
+
+function cancelEdit() {
+  isEditing.value = false;
 }
 
 
@@ -86,7 +91,25 @@ async function saveChanges() {
     isEditing.value = false;
   }
 }
+const searchedTeacherName = ref(""); // 存放搜索框里的老师名字
 
+async function searchTeacher() {
+  if (searchedTeacherName.value) {
+    const response = await TeacherService.searchTeachersByName(searchedTeacherName.value);
+    if (response.data) {
+      teacher.value = response.data as Teacher;
+    }
+  }
+}
+
+async function setRelation() {
+  if (student.value && teacher.value) {
+    const response = await StudentService.setRelation(student.value.studentId, teacher.value.firstname);
+    if (response.data) {
+      student.value = response.data as Student;
+    }
+  }
+}
 </script>
 
 <template>
@@ -103,41 +126,71 @@ async function saveChanges() {
         <img class="w-full h-56 object-cover" :src="student.images[0]" />
         <div class="flex items-center space-x-4 mb-4">
 
-          <div>
-            <h2 class="text-2xl font-bold mb-2">Name:</h2>
-            <h2 class="text-2xl mb-2">
-              {{ student.firstname }} {{ student.surname }}
-            </h2>
-            <h2 class="text-2xl font-bold mb-2">StudentId:</h2>
-            <h2 class="text-2xl mb-2">{{ student.studentId }}</h2>
+          <div v-if="isEditing">
+            <h2 class="text-2xl font-bold mb-2">Firstname</h2>
+            <input v-model="editedStudent.firstname" placeholder="Firstname">
+            <h2 class="text-2xl font-bold mb-2">Surname</h2>
+            <input v-model="editedStudent.surname" placeholder="Surname">
+            <button @click="cancelEdit"
+              class="bg-white text-gray-800 font-bold rounded border-b-2 border-blue-500 hover:border-blue-600 hover:bg-blue-500 hover:text-white shadow-md py-2 px-6 inline-flex items-center">
+              <span class="mr-2">Cancel</span>
+              <!-- SVG 省略 -->
+            </button>
+
+            <!-- 第二个按钮 -->
+            <button @click="saveChanges"
+              class="bg-white text-gray-800 font-bold rounded border-b-2 border-blue-500 hover:border-blue-600 hover:bg-blue-500 hover:text-white shadow-md py-2 px-6 inline-flex items-center">
+              <span class="mr-2">Save</span>
+              <!-- SVG 省略 -->
+            </button>
+            <!-- ... 其他信息也可以像上面这样进行编辑 -->
+          </div>
+          <div v-else>
+            <h2 class="text-2xl font-bold mb-2">Firstname</h2>
+            <h2 class="text-2xl mb-2">{{ student.firstname }}</h2>
+            <h2 class="text-2xl font-bold mb-2">Surname</h2>
+            <h2 class="text-2xl mb-2">{{ student.surname }}</h2>
+            <!-- ... 其他信息的展示 -->
           </div>
 
+          <div>
+            <!-- <h2 class="text-2xl font-bold mb-2">Firstname</h2>
+            <h2 class="text-2xl mb-2">
+              {{ student.firstname }}
+            </h2>
+            <h2 class="text-2xl font-bold mb-2">Surname</h2>
+            <h2 class="text-2xl mb-2">
+              {{ student.surname }}
+            </h2> -->
+            <h2 class="text-2xl font-bold mb-2">StudentId:</h2>
+            <h2 class="text-2xl mb-2">{{ student.studentId }}</h2>
+            <h2 class="text-2xl font-bold mb-2">Department:</h2>
+            <h2 class="text-2xl mb-2">{{ student.department }}</h2>
           </div>
+
+        </div>
         <div class="flex justify-between">
           <!-- 第一个按钮 -->
-          <button class="bg-white text-gray-800 font-bold rounded border-b-2 border-blue-500 hover:border-blue-600 hover:bg-blue-500 hover:text-white shadow-md py-2 px-6 inline-flex items-center">
+          <button @click="editStudent"
+            class="bg-white text-gray-800 font-bold rounded border-b-2 border-blue-500 hover:border-blue-600 hover:bg-blue-500 hover:text-white shadow-md py-2 px-6 inline-flex items-center">
             <span class="mr-2">Edit</span>
             <!-- SVG 省略 -->
           </button>
 
-          <!-- 第二个按钮 -->
-          <button class="bg-white text-gray-800 font-bold rounded border-b-2 border-blue-500 hover:border-blue-600 hover:bg-blue-500 hover:text-white shadow-md py-2 px-6 inline-flex items-center">
-            <span class="mr-2">Save</span>
-            <!-- SVG 省略 -->
-          </button>
+
         </div>
 
         <!-- 新增的编辑按钮 -->
-         <!-- 新增的保存按钮 -->
-        </div>
+        <!-- 新增的保存按钮 -->
       </div>
-      <!-- Teacher Details -->
+    </div>
+    <!-- Teacher Details -->
 
     <div class="w-1/2 p-4 mt-3">
       <!-- Comments Section -->
       <h1 class="text-2xl font-bold">Advisor Given comment:</h1>
       <div class="border-t border-gray-300 p-4 space-y-4 h-auto overflow-y-auto w-auto">
-        <h2>All Comments   [total:  {{ commentsCount }} comment now]</h2>
+        <h2>All Comments [total: {{ commentsCount }} comment now]</h2>
         <div v-for="(comment, index) in comments" :key="index">
           <p>{{ comment }}</p>
         </div>
@@ -165,12 +218,21 @@ async function saveChanges() {
               </svg>
               <span class="sr-only">Info</span>
               <div>
-                <span class="font-medium">Success!   </span> You successfully uploaded a comment.
+                <span class="font-medium">Success! </span> You successfully uploaded a comment.
               </div>
             </div>
 
           </div>
         </div>
+      </div>
+
+      <div>
+        <input v-model="searchedTeacherName" placeholder="Seacher Advisor first name">
+        <button @click="searchTeacher">Search</button>
+
+        <p v-if="teacher">Searched Advisor: {{ teacher.firstname }}</p>
+        <p v-if="student">Current Student: {{ student.firstname }}</p>
+        <button @click="setRelation">Set Relation</button>
       </div>
       <div class="space-y-4">
         <h1 class="text-2xl font-bold mb-1">Advisor:</h1>
@@ -179,7 +241,9 @@ async function saveChanges() {
           <img class="w-24 h-24 object-cover rounded-md shadow-lg " :src="teacher?.images[0]" />
           <div class="ml-4">
             <h1 class="mb-2 text-2xl font-bold">Name: {{ teacher?.firstname }} {{ teacher?.surname }}</h1>
-            <h1 class="mb-3 text-lg">Advisor ID:   <span class=" mb-3 rounded-lg italic font-bold bg-[rgb(158,118,180)] py-1 px-2 text-xl text-white">{{ teacher?.teacherId }}</span></h1>
+            <h1 class="mb-3 text-lg">Advisor ID: <span
+                class=" mb-3 rounded-lg italic font-bold bg-[rgb(158,118,180)] py-1 px-2 text-xl text-white">{{
+                  teacher?.teacherId }}</span></h1>
             <RouterLink :to="{
               name: 'teacher-detail',
               params: { teacherId: teacher?.teacherId },
@@ -221,9 +285,11 @@ async function saveChanges() {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
         </svg>
       </span>
-      <span class="relative w-full text-left transition-colors duration-200 ease-in-out group-hover:text-white font-bold text-2xl">Back to     
-        
-        
+      <span
+        class="relative w-full text-left transition-colors duration-200 ease-in-out group-hover:text-white font-bold text-2xl">Back
+        to
+
+
         Mainpage</span>
     </a>
 

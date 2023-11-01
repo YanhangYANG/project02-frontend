@@ -44,7 +44,7 @@ const onSubmit = handleSubmit((values) => {
       <form class="space-y-6" @submit.prevent="onSubmit">
 
         <div>
-          <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email address</label>
+          <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Username</label>
           <InputText type="text" v-model="email" :error="errors['email']"></InputText>
         </div>
         <div>

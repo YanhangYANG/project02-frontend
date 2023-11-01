@@ -105,7 +105,7 @@ component: Overallpage,
         return StudentService.getStudentById(studentId)
           .then((response) => {
             if ((response.data as any).length === 0) {
-              return { name: '404-resource', params: { resource: 'student' } };
+              return { name: '404-resource', params: { resource: 'stu   dent' } };
             } else {
               eventStore.setEvent(response.data as any);
             }

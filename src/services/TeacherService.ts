@@ -26,4 +26,5 @@ export default {
   saveTeacher(event: Teacher): Promise<AxiosResponse<Teacher>> {
     return apiClient.post < Teacher > ('/advisors', event)
   }
+  
 };
