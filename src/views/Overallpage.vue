@@ -38,6 +38,7 @@ onMounted(fetchAllData);
         <th class="py-2 px-4 border">Surname</th>
         <th class="py-2 px-4 border">Student ID</th>
         <th class="py-2 px-4 border">Department</th>
+        <th class="py-2 px-4 border">Advisor</th>
         <!-- ... other columns -->
       </tr>
       </thead>
@@ -48,6 +49,7 @@ onMounted(fetchAllData);
         <td class="py-2 px-4 border">{{ student.surname }}</td>
         <td class="py-2 px-4 border">{{ student.studentId }}</td>
         <td class="py-2 px-4 border">{{ student.department }}</td>
+        <td class="py-2 px-4 border">{{ student.advisor?.firstname }} {{ student.advisor?.surname }}</td>
         <!-- ... other columns -->
       </tr>
       </tbody>
